@@ -1,6 +1,10 @@
 # homebrew-koocli
 
-这个仓库是 KooCLI 的 Homebrew tap，依据华为云 KooCLI 快速入门页面公开的下载入口来生成 formula，并通过 GitHub Actions 每天检查上游 `latest` 包是否更新。
+这个仓库是 KooCLI 的 Homebrew tap，依据华为云 KooCLI 快速入门页面公开的下载入口生成 formula，并通过 GitHub Actions 每天检查上游 `latest` 包是否更新。
+
+仓库地址：
+
+- [KaranocaVe/homebrew-koocli](https://github.com/KaranocaVe/homebrew-koocli)
 
 参考页面：
 
@@ -9,11 +13,15 @@
 ## 安装
 
 ```bash
-brew tap <owner>/koocli
-brew install <owner>/koocli/koocli
+brew tap KaranocaVe/koocli
+brew install KaranocaVe/koocli/koocli
 ```
 
-对应的 GitHub 仓库名建议为 `homebrew-koocli`。
+安装后可执行：
+
+```bash
+hcloud --help
+```
 
 ## 设计说明
 
@@ -33,7 +41,11 @@ brew install <owner>/koocli/koocli
 
 默认计划任务是每天 UTC `02:17` 执行一次。当前用户时区 `Asia/Shanghai` 下等于每天 `10:17`。
 
-推到 GitHub 后，workflow 会执行以下流程：
+工作流：
+
+- [Update KooCLI Formula](https://github.com/KaranocaVe/homebrew-koocli/actions/workflows/update-koocli.yml)
+
+workflow 会执行以下流程：
 
 1. 拉取仓库
 2. 运行更新脚本
@@ -46,13 +58,13 @@ brew install <owner>/koocli/koocli
 
 ```bash
 bash scripts/update-koocli-formula.sh
-brew tap <owner>/koocli "$(pwd)"
-HOMEBREW_NO_INSTALL_FROM_API=1 brew audit --strict <owner>/koocli/koocli
-HOMEBREW_NO_INSTALL_FROM_API=1 brew reinstall <owner>/koocli/koocli
-HOMEBREW_NO_INSTALL_FROM_API=1 brew test <owner>/koocli/koocli
+brew tap KaranocaVe/koocli "$(pwd)"
+HOMEBREW_NO_INSTALL_FROM_API=1 brew audit --strict KaranocaVe/koocli/koocli
+HOMEBREW_NO_INSTALL_FROM_API=1 brew reinstall KaranocaVe/koocli/koocli
+HOMEBREW_NO_INSTALL_FROM_API=1 brew test KaranocaVe/koocli/koocli
 ```
 
 ## 注意
 
-- 这个仓库当前需要托管在 GitHub 上，定时检查才会生效。
-- `brew test koocli` 会向 `hcloud --help` 输入 `y`，绕过 KooCLI 首次运行时的隐私确认提示。
+- `brew test KaranocaVe/koocli/koocli` 会向 `hcloud --help` 输入 `y`，绕过 KooCLI 首次运行时的隐私确认提示。
+- 上游只提供 `latest` 固定下载地址，因此版本变更依赖本仓库的定时检查，而不是 Homebrew 自带的 `livecheck`。
