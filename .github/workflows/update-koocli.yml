@@ -1,0 +1,69 @@
+name: Update KooCLI Formula
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 2 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  update-formula:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Update formula from upstream latest package
+        run: bash scripts/update-koocli-formula.sh
+
+      - name: Detect changes
+        id: changes
+        run: |
+          owner="$(dirname "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')"
+          repo="$(basename "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')"
+          if [[ "${repo}" == homebrew-* ]]; then
+            tap_repo="${repo#homebrew-}"
+          else
+            tap_repo="${repo}"
+          fi
+          tap_ref="${owner}/${tap_repo}"
+          formula_ref="${tap_ref}/koocli"
+          echo "tap_ref=${tap_ref}" >> "$GITHUB_OUTPUT"
+          echo "formula_ref=${formula_ref}" >> "$GITHUB_OUTPUT"
+          if git diff --quiet -- Formula/koocli.rb; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Audit formula
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          brew tap "${{ steps.changes.outputs.tap_ref }}" "$(pwd)"
+          HOMEBREW_NO_INSTALL_FROM_API=1 brew audit --strict "${{ steps.changes.outputs.formula_ref }}"
+
+      - name: Install formula from tap
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          brew tap "${{ steps.changes.outputs.tap_ref }}" "$(pwd)"
+          HOMEBREW_NO_INSTALL_FROM_API=1 brew install --formula "${{ steps.changes.outputs.formula_ref }}"
+
+      - name: Test formula
+        if: steps.changes.outputs.changed == 'true'
+        run: HOMEBREW_NO_INSTALL_FROM_API=1 brew test "${{ steps.changes.outputs.formula_ref }}"
+
+      - name: Commit and push update
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          version="$(ruby -e 'puts File.read("Formula/koocli.rb")[/version \"([^\"]+)\"/, 1]')"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Formula/koocli.rb
+          git commit -m "koocli ${version}"
+          git push
