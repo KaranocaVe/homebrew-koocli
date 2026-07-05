@@ -24,7 +24,7 @@ jobs:
           persist-credentials: true
 
       - name: Set up Homebrew
-        uses: Homebrew/actions/setup-homebrew@master
+        uses: Homebrew/actions/setup-homebrew@main
 
       - name: Update formula from upstream latest package
         run: bash scripts/update-koocli-formula.sh
@@ -48,12 +48,6 @@ jobs:
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
-
-      - name: Tap local formula
-        if: steps.changes.outputs.changed == 'true'
-        run: |
-          brew untap "${{ steps.changes.outputs.tap_ref }}" || true
-          brew tap "${{ steps.changes.outputs.tap_ref }}" "$(pwd)"
 
       - name: Audit formula
         if: steps.changes.outputs.changed == 'true'
