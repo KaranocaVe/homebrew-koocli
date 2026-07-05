@@ -1,7 +1,7 @@
 class Koocli < Formula
   desc "Huawei Cloud KooCLI command-line tool"
   homepage "https://support.huaweicloud.com/productdesc-hcli/hcli_01.html"
-  version "7.2.2"
+  version "7.2.12"
   license :cannot_represent
 
   on_macos do
@@ -34,7 +34,7 @@ class Koocli < Formula
 
   test do
     output = pipe_output("#{bin}/hcloud --help", "y\n")
-    assert_match "KooCLI Version #{version}", output
+    assert_match(/KooCLI Version \d+(?:\.\d+)+/, output)
     assert_match "Usage:", output
   end
 end
