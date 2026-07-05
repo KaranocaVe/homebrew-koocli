@@ -22,7 +22,7 @@ class Koocli < Formula
     end
     on_intel do
       url "https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-amd64.tar.gz"
-      sha256 "62c1d1393f356448a4d358e8ec47b7985fa73abc4fb7c0db2745d712d91e4a58"
+      sha256 "eba29414c9e63685d8b5cbad2a67af70c60c1eb0ed576bc779acefd6ba67b71f"
     end
   end
 
