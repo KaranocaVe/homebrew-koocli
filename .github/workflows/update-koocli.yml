@@ -19,6 +19,9 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ github.token }}
+          persist-credentials: true
 
       - name: Set up Homebrew
         uses: Homebrew/actions/setup-homebrew@master
@@ -66,10 +69,13 @@ jobs:
 
       - name: Commit and push update
         if: steps.changes.outputs.changed == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           version="$(ruby -e 'puts File.read("Formula/koocli.rb")[/version \"([^\"]+)\"/, 1]')"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add Formula/koocli.rb
           git commit -m "koocli ${version}"
-          git push --set-upstream origin main
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push origin HEAD:main
