@@ -7,18 +7,18 @@ class Koocli < Formula
   on_macos do
     on_arm do
       url "https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/huaweicloud-cli-mac-arm64.tar.gz"
-      sha256 "b9b8fe9699889aa9c94b26ab6745b6c5bc13c47431f4f489be5d40a2eedebad1"
+      sha256 "69940482ead3bf607ccfb2767f55288fc1d7af0d3e5ad69b660bdfabf2efe4bc"
     end
     on_intel do
       url "https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/huaweicloud-cli-mac-amd64.tar.gz"
-      sha256 "fd6005066deb7894001da002fc9079754beeae51ce14cb02519cff7ab19b2dc5"
+      sha256 "4d00a27c87950eb39e2fc5ec4a39cde7e8642c6df7580350bff4e283d2717321"
     end
   end
 
   on_linux do
     on_arm do
       url "https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-arm64.tar.gz"
-      sha256 "ed4026ec6409f781ecbdea394bfe20fe8cc65f88ca9fc33d9341a81761eed0d5"
+      sha256 "f15358ee35d4314676e40f875e4917f1c35a2c1f011c41224fae9fa95a9e00ba"
     end
     on_intel do
       url "https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-amd64.tar.gz"
