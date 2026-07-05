@@ -3,10 +3,14 @@ name: Update KooCLI Formula
 on:
   workflow_dispatch:
   schedule:
-    - cron: "17 2 * * *"
+    - cron: "17 */4 * * *"
 
 permissions:
   contents: write
+
+concurrency:
+  group: update-koocli-formula
+  cancel-in-progress: false
 
 jobs:
   update-formula:
