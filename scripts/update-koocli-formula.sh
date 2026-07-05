@@ -67,7 +67,7 @@ actual_sha() {
 extract_version() {
   local archive_name="$1"
   local archive_path
-  local expanded_dir="${TMPDIR}/extract"
+  local expanded_dir="${TMPDIR}/extract-${archive_name%.tar.gz}"
   local hcloud_path version
 
   archive_path="$(download_archive "${archive_name}")"
@@ -91,11 +91,26 @@ extract_version() {
   printf '%s' "${version}"
 }
 
+ensure_same_version() {
+  local expected="$1"
+  local archive_name version
+  shift
+
+  for archive_name in "$@"; do
+    version="$(extract_version "${archive_name}")"
+    if [[ "${version}" != "${expected}" ]]; then
+      echo "Version mismatch: ${archive_name} is ${version}, expected ${expected}" >&2
+      exit 1
+    fi
+  done
+}
+
 MAC_ARM_SHA="$(actual_sha "${MAC_ARM_ARCHIVE}")"
 MAC_INTEL_SHA="$(actual_sha "${MAC_INTEL_ARCHIVE}")"
 LINUX_ARM_SHA="$(actual_sha "${LINUX_ARM_ARCHIVE}")"
 LINUX_INTEL_SHA="$(actual_sha "${LINUX_INTEL_ARCHIVE}")"
 VERSION="$(extract_version "${MAC_ARM_ARCHIVE}")"
+ensure_same_version "${VERSION}" "${MAC_INTEL_ARCHIVE}" "${LINUX_ARM_ARCHIVE}" "${LINUX_INTEL_ARCHIVE}"
 export VERSION
 export MAC_ARM_SHA
 export MAC_INTEL_SHA
