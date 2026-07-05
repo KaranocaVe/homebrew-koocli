@@ -18,6 +18,15 @@ if [[ -z "${CURL_BIN}" ]]; then
   fi
 fi
 
+if command -v shasum >/dev/null 2>&1; then
+  SHA256_CMD=(shasum -a 256)
+elif command -v sha256sum >/dev/null 2>&1; then
+  SHA256_CMD=(sha256sum)
+else
+  echo "shasum or sha256sum is required" >&2
+  exit 1
+fi
+
 TMPDIR="$(mktemp -d)"
 trap 'rm -rf "${TMPDIR}"' EXIT
 
@@ -27,16 +36,28 @@ MAC_INTEL_ARCHIVE="huaweicloud-cli-mac-amd64.tar.gz"
 LINUX_ARM_ARCHIVE="huaweicloud-cli-linux-arm64.tar.gz"
 LINUX_INTEL_ARCHIVE="huaweicloud-cli-linux-amd64.tar.gz"
 
-fetch_sha() {
+download_archive() {
   local archive_name="$1"
-  local sha_url="${BASE_URL}/${archive_name}.sha256"
+  local archive_path="${TMPDIR}/${archive_name}"
+
+  if [[ ! -f "${archive_path}" ]]; then
+    "${CURL_BIN}" -fsSL "${BASE_URL}/${archive_name}" -o "${archive_path}"
+  fi
+
+  printf '%s' "${archive_path}"
+}
+
+actual_sha() {
+  local archive_name="$1"
+  local archive_path
   local sha_line
 
-  sha_line="$("${CURL_BIN}" -fsSL "${sha_url}")"
+  archive_path="$(download_archive "${archive_name}")"
+  sha_line="$(${SHA256_CMD[@]} "${archive_path}")"
   sha_line="${sha_line%% *}"
 
   if [[ ! "${sha_line}" =~ ^[0-9a-f]{64}$ ]]; then
-    echo "Unexpected sha256 payload from ${sha_url}: ${sha_line}" >&2
+    echo "Unexpected sha256 output for ${archive_name}: ${sha_line}" >&2
     exit 1
   fi
 
@@ -45,11 +66,11 @@ fetch_sha() {
 
 extract_version() {
   local archive_name="$1"
-  local archive_path="${TMPDIR}/${archive_name}"
+  local archive_path
   local expanded_dir="${TMPDIR}/extract"
   local hcloud_path version
 
-  "${CURL_BIN}" -fsSL "${BASE_URL}/${archive_name}" -o "${archive_path}"
+  archive_path="$(download_archive "${archive_name}")"
   rm -rf "${expanded_dir}"
   mkdir -p "${expanded_dir}"
   tar -xzf "${archive_path}" -C "${expanded_dir}"
@@ -70,10 +91,10 @@ extract_version() {
   printf '%s' "${version}"
 }
 
-MAC_ARM_SHA="$(fetch_sha "${MAC_ARM_ARCHIVE}")"
-MAC_INTEL_SHA="$(fetch_sha "${MAC_INTEL_ARCHIVE}")"
-LINUX_ARM_SHA="$(fetch_sha "${LINUX_ARM_ARCHIVE}")"
-LINUX_INTEL_SHA="$(fetch_sha "${LINUX_INTEL_ARCHIVE}")"
+MAC_ARM_SHA="$(actual_sha "${MAC_ARM_ARCHIVE}")"
+MAC_INTEL_SHA="$(actual_sha "${MAC_INTEL_ARCHIVE}")"
+LINUX_ARM_SHA="$(actual_sha "${LINUX_ARM_ARCHIVE}")"
+LINUX_INTEL_SHA="$(actual_sha "${LINUX_INTEL_ARCHIVE}")"
 VERSION="$(extract_version "${MAC_ARM_ARCHIVE}")"
 export VERSION
 export MAC_ARM_SHA
@@ -96,7 +117,7 @@ replacements = {
 }
 
 replacements.each do |archive, sha|
-  pattern = Regexp.new("(url \"#{Regexp.escape(base_url)}/#{Regexp.escape(archive)}\"\\n\\s+sha256 \")[0-9a-f]{64}\"")
+  pattern = Regexp.new("(url \"#{Regexp.escape(base_url)}/#{Regexp.escape(archive)}\"\n\s+sha256 \")[0-9a-f]{64}\"")
   unless formula.match?(pattern)
     warn "Failed to locate sha256 stanza for #{archive}"
     exit 1
