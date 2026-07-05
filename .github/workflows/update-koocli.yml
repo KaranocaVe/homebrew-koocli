@@ -42,17 +42,19 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Audit formula
+      - name: Tap local formula
         if: steps.changes.outputs.changed == 'true'
         run: |
+          brew untap "${{ steps.changes.outputs.tap_ref }}" || true
           brew tap "${{ steps.changes.outputs.tap_ref }}" "$(pwd)"
-          HOMEBREW_NO_INSTALL_FROM_API=1 brew audit --strict "${{ steps.changes.outputs.formula_ref }}"
+
+      - name: Audit formula
+        if: steps.changes.outputs.changed == 'true'
+        run: HOMEBREW_NO_INSTALL_FROM_API=1 brew audit --strict "${{ steps.changes.outputs.formula_ref }}"
 
       - name: Install formula from tap
         if: steps.changes.outputs.changed == 'true'
-        run: |
-          brew tap "${{ steps.changes.outputs.tap_ref }}" "$(pwd)"
-          HOMEBREW_NO_INSTALL_FROM_API=1 brew install --formula "${{ steps.changes.outputs.formula_ref }}"
+        run: HOMEBREW_NO_INSTALL_FROM_API=1 brew install --formula "${{ steps.changes.outputs.formula_ref }}"
 
       - name: Test formula
         if: steps.changes.outputs.changed == 'true'
