@@ -1,28 +1,28 @@
 class Koocli < Formula
   desc "Huawei Cloud KooCLI command-line tool"
   homepage "https://support.huaweicloud.com/productdesc-hcli/hcli_01.html"
-  version "7.2.12"
+  version "7.3.12"
   license :cannot_represent
 
   on_macos do
     on_arm do
       url "https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/huaweicloud-cli-mac-arm64.tar.gz"
-      sha256 "69940482ead3bf607ccfb2767f55288fc1d7af0d3e5ad69b660bdfabf2efe4bc"
+      sha256 "f41b5b1dd6e7dbe5c5d54793c02c72ad36d11e7fc8c9da851d1291bc600d3797"
     end
     on_intel do
       url "https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/huaweicloud-cli-mac-amd64.tar.gz"
-      sha256 "4d00a27c87950eb39e2fc5ec4a39cde7e8642c6df7580350bff4e283d2717321"
+      sha256 "0a4f6fb5d76d16370e1bdc4bccfca63916e85d4c6d7fcc0d0cd9822ba5748850"
     end
   end
 
   on_linux do
     on_arm do
       url "https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-arm64.tar.gz"
-      sha256 "f15358ee35d4314676e40f875e4917f1c35a2c1f011c41224fae9fa95a9e00ba"
+      sha256 "9247259cd5c79d84a28c2739371c3e0a81d80d9e0a79c2f7a72a096e6c298ae9"
     end
     on_intel do
       url "https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-amd64.tar.gz"
-      sha256 "eba29414c9e63685d8b5cbad2a67af70c60c1eb0ed576bc779acefd6ba67b71f"
+      sha256 "0b01cee0e943b8ec00fe7cd7df341f161665f8162eae85280fae221a0d9f938b"
     end
   end
 
