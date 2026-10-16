@@ -33,6 +33,10 @@ class Koocli < Formula
   end
 
   test do
+    # KooCLI writes config and logs to ~/.hcloud when first started.
+    # Use the writable Homebrew test sandbox instead of the runner's HOME.
+    ENV["HOME"] = testpath.to_s
+
     output = pipe_output("#{bin}/hcloud --help", "y\n")
     assert_match(/KooCLI Version \d+(?:\.\d+)+/, output)
     assert_match "Usage:", output
