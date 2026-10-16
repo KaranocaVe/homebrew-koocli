@@ -2,6 +2,13 @@ name: Update KooCLI Formula
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - Formula/koocli.rb
+      - scripts/update-koocli-formula.sh
+      - .github/workflows/update-koocli.yml
   schedule:
     - cron: "17 2 * * *"
 
@@ -50,15 +57,15 @@ jobs:
           fi
 
       - name: Audit formula
-        if: steps.changes.outputs.changed == 'true'
+        if: steps.changes.outputs.changed == 'true' || github.event_name == 'push'
         run: HOMEBREW_NO_INSTALL_FROM_API=1 brew audit --strict "${{ steps.changes.outputs.formula_ref }}"
 
       - name: Install formula from tap
-        if: steps.changes.outputs.changed == 'true'
+        if: steps.changes.outputs.changed == 'true' || github.event_name == 'push'
         run: HOMEBREW_NO_INSTALL_FROM_API=1 brew install --formula "${{ steps.changes.outputs.formula_ref }}"
 
       - name: Test formula
-        if: steps.changes.outputs.changed == 'true'
+        if: steps.changes.outputs.changed == 'true' || github.event_name == 'push'
         run: HOMEBREW_NO_INSTALL_FROM_API=1 brew test "${{ steps.changes.outputs.formula_ref }}"
 
       - name: Commit and push update
