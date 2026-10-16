@@ -68,6 +68,15 @@ jobs:
         if: steps.changes.outputs.changed == 'true' || github.event_name == 'push'
         run: HOMEBREW_NO_INSTALL_FROM_API=1 brew test "${{ steps.changes.outputs.formula_ref }}"
 
+      - name: Smoke test installed KooCLI
+        if: steps.changes.outputs.changed == 'true' || github.event_name == 'push'
+        run: |
+          # Run outside brew test's Landlock sandbox so ~/.hcloud is writable.
+          output="$(printf 'y\n' | "$(brew --prefix koocli)/bin/hcloud" --help)"
+          printf '%s\n' "$output"
+          grep -Eq 'KooCLI Version [0-9]+(\.[0-9]+)+' <<< "$output"
+          grep -Fq 'Usage:' <<< "$output"
+
       - name: Commit and push update
         if: steps.changes.outputs.changed == 'true'
         env:

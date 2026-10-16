@@ -33,12 +33,11 @@ class Koocli < Formula
   end
 
   test do
-    # KooCLI writes config and logs to ~/.hcloud when first started.
-    # Use the writable Homebrew test sandbox instead of the runner's HOME.
-    ENV["HOME"] = testpath.to_s
-
-    output = pipe_output("#{bin}/hcloud --help", "y\n")
-    assert_match(/KooCLI Version \d+(?:\.\d+)+/, output)
-    assert_match "Usage:", output
+    # KooCLI writes to the OS user's home even when HOME is overridden.
+    # Verify the installed binary offline under Homebrew's sandbox.
+    binary = bin/"hcloud"
+    assert binary.executable?, "hcloud is not executable"
+    embedded_version = "-X hwcloudcli/util.CliVersion=#{version}"
+    assert binary.binread.include?(embedded_version), "Embedded KooCLI version #{version} not found"
   end
 end
